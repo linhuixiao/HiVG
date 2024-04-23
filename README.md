@@ -213,6 +213,7 @@ Download the above annotations to a disk directory such as `$/path_to_split`; th
     </tr>
 </table>
 
+The checkpoints include the Base model and Large mode under the fine-tuning setting and dataset-mixed pretraining setting. 
 
 
 ## Training and Evaluation
@@ -243,7 +244,7 @@ The first time we run the command below, it will take some time for the reposito
 
 ## Results
 
-### RefCOCO, RefCOCO+, RefCOCOg, ReferIt, Flickr, datasets
+### 1. RefCOCO, RefCOCO+, RefCOCOg, ReferIt, Flickr, datasets
 <details open>
 <summary><font size="4">
 SOTA Result Table
@@ -267,7 +268,7 @@ datasets, and it also outperforms OFA by 3.93%(testB), 2.06%(testA), and 4.31%(t
 After dataset-mixed pre-training, our performance has significantly improved, further demonstrating the effectiveness 
 of our method.
 
-### Our model also has significant energy efficiency advantages.
+### 2. Our model also has significant energy efficiency advantages.
 
 <details open>
 <summary><font size="4">
