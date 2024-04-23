@@ -50,13 +50,13 @@ If you find our work helpful for your research, please consider citing the follo
 
 ## Highlight
 -  **A concise hierarchical multimodal modulation framework**, which utilizes the hierarchical structure to gradually adapt CLIP to grounding. HiVG achieves fine-grained interaction between multi-level visual representations and language semantics, and significantly alleviates the task gap between CLIP and grounding.
-- **We are the first to propose the hierarchical multimodal low-rank adaptation structure.** Hi LoRA is a basic and concise hierarchical adaptation paradigm, which is task-agnostic.
-- We conducted extensive experiments to verify the effectiveness of HiVG approaches. Results show that our method achieves promising results, surpassing the SOTA methods under the same setting by a significant margin. Besides, our model offers significant computing efficiency advantages.
+- **The first to propose the hierarchical multimodal low-rank adaptation paradigm.** Hi LoRA is a basic and concise hierarchical adaptation paradigm, which is task-agnostic.
+- **Extensive experiments are conducted to verify the effectiveness of HiVG approaches.** Results show that our method achieves promising results, surpassing the SOTA methods under the same setting by a significant margin. Besides, our model offers significant computing efficiency advantages.
 
 
 ## TODO
 - [ ] Release all the checkpoints.
-- [ ] Release the full model code and inference code.
+- [ ] Release the full model code, training and inference code.
 
 
 
@@ -68,7 +68,7 @@ alignment. Existing works utilized uni-modal pre-trained models to transfer visu
 ignoring the multimodal corresponding information. Motivated by recent advancements in contrastive language-image 
 pre-training and low-rank adaptation (LoRA) methods, we aim to solve the grounding task based on multimodal pre-training.
 However, there exists significant task gaps between pre-training and grounding. Therefore, to address these gaps, we 
-propose a concise and efficient hierarchical multimodal fine-grained modulation framework, namely HiVG. Specifically,
+propose **a concise and efficient hierarchical multimodal fine-grained modulation framework**, namely **HiVG**. Specifically,
 HiVG consists of a multi-layer adaptive cross-modal bridge and a hierarchical multimodal low-rank adaptation (Hi LoRA) 
 paradigm. The cross-modal bridge can address the inconsistency between visual features and those required for grounding,
 and establish a connection between multi-level visual and text features. Hi LoRA prevents the accumulation of perceptual 
@@ -84,8 +84,7 @@ For more details, please refer to [our paper](https://arxiv.org/abs/2404.13400).
 - PyTorch 1.9.0 + cu111 + cp39
 - Check [requirements.txt](requirements.txt) for other dependencies. 
 
-Our model is **easy to deploy** in a variety of environments and has been successfully tested on multiple pytorch versions.
-If you are interested in the pseudo language label generation module, more detailed instructions will be found at [usage instructions](pseudo_label_generation_module/README.md).
+Our model is **easy to deploy** in a variety of environments and **has been successfully tested** on multiple pytorch versions.
 
 
 ### Image Data Preparation
@@ -210,7 +209,7 @@ Download the above annotations to a disk directory such as `$/path_to_split`; th
     </tr>
     <tr> <!-- line 2 -->
         <th style="text-align:center" rowspan="1"> url, size </th> <!-- table head -->
-        <th style="text-align:center" colspan="6"> <a href="todo">All of six models</a>  </th>  <!-- table head -->
+        <th style="text-align:center" colspan="6"> <a href="todo">All of six models (All have not ready)</a>  </th>  <!-- table head -->
     </tr>
 </table>
 
@@ -244,9 +243,10 @@ The first time we run the command below, it will take some time for the reposito
 
 ## Results
 
+### RefCOCO, RefCOCO+, RefCOCOg, ReferIt, Flickr, datasets
 <details open>
 <summary><font size="4">
-RefCOCO, RefCOCO+, RefCOCOg, ReferIt, Flickr, datasets
+SOTA Result Table
 </font></summary>
 <img src="docs/sota.jpg" alt="COCO" width="100%">
 </details>
@@ -267,13 +267,14 @@ datasets, and it also outperforms OFA by 3.93%(testB), 2.06%(testA), and 4.31%(t
 After dataset-mixed pre-training, our performance has significantly improved, further demonstrating the effectiveness 
 of our method.
 
+### Our model also has significant energy efficiency advantages.
 
 <details open>
 <summary><font size="4">
-Our model also has significant energy efficiency advantages.
+Illustration
 </font></summary>
 <div align=center>
-<img src="docs/result_performance.jpg" alt="COCO" width="85%"></div>
+<img src="docs/result_performance.jpg" alt="COCO" width="100%"></div>
 </details>
 
 **Comparison between HiVG (base) and SOTA models, as well as the ablation study of HiVG on the main modules.** (a) HiVG 
