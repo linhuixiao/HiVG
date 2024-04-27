@@ -3,7 +3,11 @@
 
 
 This repository is the official Pytorch implementation for the paper [**HiVG: Hierarchical Multimodal Fine-grained 
-Modulation for Visual Grounding**](https://arxiv.org/abs/2404.13400), which is an advanced version
+Modulation for Visual Grounding**](https://arxiv.org/abs/2404.13400), by
+[Linhui Xiao](https://scholar.google.com.hk/citations?user=4rTE4ogAAAAJ&hl=zh-CN&oi=sra), 
+[Xiaoshan Yang](https://yangxs.ac.cn/home), 
+[Fang Peng](Fang Peng), [Yaowei Wang](https://scholar.google.com.hk/citations?user=o_DllmIAAAAJ&hl=zh-CN), 
+and [Changsheng Xu](https://scholar.google.com.hk/citations?user=hI9NRDkAAAAJ&hl=zh-CN), which is an advanced version
 of our preliminary work **CLIP-VG** ([github](https://github.com/linhuixiao/CLIP-VG), [publication](
 https://ieeexplore.ieee.org/abstract/document/10269126), [Arxiv](https://arxiv.org/abs/2305.08685)). 
 
