@@ -328,6 +328,9 @@ Thanks [OpenAI](https://github.com/openai) for their awesome models.
 
 
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=linhuixiao/HiVG&type=Date)](https://star-history.com/#linhuixiao/HiVG&Date)
 
 
 
