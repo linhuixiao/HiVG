@@ -44,9 +44,9 @@ Links:
 ## News
 
 - **All of the code and models will be released soon!**
-- :fire: **Update on 2024/07/16: Our paper has been accepted by ACM MM 2024 !**
+- :fire: **Update on 2024/07/16: Our paper has been accepted by the top conference ACM MM 2024 !**
 - **Update on 2024/04/20: Release the project repository.**
-
+- **Update on 2023/9/25: Our CLIP-VG paper has been accepted by the top journal IEEE Transaction on Multimedia (2023)!**
 
 ## Citation
 
