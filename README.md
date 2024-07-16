@@ -44,7 +44,7 @@ Links:
 ## News
 
 - **All of the code and models will be released soon!**
-- **Update on 2024/07/16: Our paper has been accepted by ACM MM 2024 !**
+- :fire: **Update on 2024/07/16: Our paper has been accepted by ACM MM 2024 !**
 - **Update on 2024/04/20: Release the project repository.**
 
 
