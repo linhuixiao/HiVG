@@ -1,6 +1,5 @@
-<br />
-<p align="center">
-  <h1 align="center">HiVG: Hierarchical Multimodal Fine-grained Modulation for Visual Grounding</h1>
+[//]: # (<br />)
+<p align="center"> <h1 align="center">HiVG: Hierarchical Multimodal Fine-grained Modulation for Visual Grounding</h1>
   <p align="center">
     <b> ACM MM, 2024 </b>
     <br />
