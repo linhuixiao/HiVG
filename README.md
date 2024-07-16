@@ -1,14 +1,32 @@
-# HiVG: Hierarchical Multimodal Fine-grained Modulation for Visual Grounding
+<br />
+<p align="center">
+  <h1 align="center">HiVG: Hierarchical Multimodal Fine-grained Modulation for Visual Grounding</h1>
+  <p align="center">
+    <b> ACM MM, 2024 </b>
+    <br />
+    <a href="https://scholar.google.com.hk/citations?user=4rTE4ogAAAAJ&hl=zh-CN&oi=sra"><strong> Linhui Xiao </strong></a>
+    ·
+    <a href="https://yangxs.ac.cn/home"><strong>Xiaoshan Yang </strong></a>
+    ·
+    <a href="https://scholar.google.com.hk/citations?user=HBZ9plsAAAAJ&hl=zh-CN"><strong>Fang Peng </strong></a>
+    ·
+    <a href="https://scholar.google.com.hk/citations?user=o_DllmIAAAAJ&hl=zh-CN"><strong>Yaowei Wang </strong></a>
+    ·
+    <a href="https://scholar.google.com.hk/citations?user=hI9NRDkAAAAJ&hl=zh-CN"><strong>Changsheng Xu</strong></a>
+  </p>
+
+  <p align="center">
+    <a href='https://arxiv.org/pdf/2404.13400'>
+      <img src='https://img.shields.io/badge/arXiv-PDF-green?style=flat&logo=arXiv&logoColor=green' alt='arXiv PDF'>
+    </a>
+<br />
+
+
 <p align="center"> <img src='docs/model.jpg' align="center" width="55%"> </p>
 
 
 This repository is the official Pytorch implementation for the paper [**HiVG: Hierarchical Multimodal Fine-grained 
-Modulation for Visual Grounding**](https://arxiv.org/abs/2404.13400), by
-[Linhui Xiao](https://scholar.google.com.hk/citations?user=4rTE4ogAAAAJ&hl=zh-CN&oi=sra), 
-[Xiaoshan Yang](https://yangxs.ac.cn/home), 
-[Fang Peng](https://scholar.google.com.hk/citations?user=HBZ9plsAAAAJ&hl=zh-CN),
-[Yaowei Wang](https://scholar.google.com.hk/citations?user=o_DllmIAAAAJ&hl=zh-CN), 
-and [Changsheng Xu](https://scholar.google.com.hk/citations?user=hI9NRDkAAAAJ&hl=zh-CN), which is an advanced version
+Modulation for Visual Grounding**](https://arxiv.org/abs/2404.13400), which is an advanced version
 of our preliminary work **CLIP-VG** ([github](https://github.com/linhuixiao/CLIP-VG), [publication](
 https://ieeexplore.ieee.org/abstract/document/10269126), [Arxiv](https://arxiv.org/abs/2305.08685)). 
 
@@ -18,7 +36,8 @@ Any kind discussions are welcomed!
 
 <h3 align="left">
 Links: 
-<a href="https://arxiv.org/abs/2404.13400">ArXiv</a>
+<a href="https://arxiv.org/abs/2404.13400">ArXiv</a>, 
+<a href="">ACM MM 2024</a>
 </h3>
 
 **Please leave a <font color='orange'>STAR ⭐</font> if you like this project!**
@@ -26,6 +45,7 @@ Links:
 ## News
 
 - **All of the code and models will be released soon!**
+- **Update on 2024/07/16: Our paper has been accepted by ACM MM 2024 !**
 - **Update on 2024/04/20: Release the project repository.**
 
 
