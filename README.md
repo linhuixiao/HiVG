@@ -18,6 +18,9 @@
     <a href='https://arxiv.org/pdf/2404.13400'>
       <img src='https://img.shields.io/badge/arXiv-PDF-green?style=flat&logo=arXiv&logoColor=green' alt='arXiv PDF'>
     </a>
+    <a href='https://ieeexplore.ieee.org/abstract/document/10269126'>
+      <img src='https://img.shields.io/badge/ACM MM 2024-purple' alt='arXiv PDF'>
+    </a>
 <br />
 
 
@@ -46,7 +49,7 @@ Links:
 - **All of the code and models will be released soon!**
 - :fire: **Update on 2024/07/16: Our paper has been accepted by the top conference ACM MM 2024 !**
 - **Update on 2024/04/20: Release the project repository.**
-- **Update on 2023/9/25: Our CLIP-VG paper has been accepted by the top journal IEEE Transaction on Multimedia (2023)!**
+- **Update on 2023/9/25: Our CLIP-VG paper has been accepted by the top journal IEEE Transaction on Multimedia (2023)! ([paper](https://ieeexplore.ieee.org/abstract/document/10269126), [github](https://github.com/linhuixiao/CLIP-VG))**
 
 ## Citation
 
