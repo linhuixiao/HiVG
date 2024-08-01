@@ -18,9 +18,10 @@
     <a href='https://arxiv.org/pdf/2404.13400'>
       <img src='https://img.shields.io/badge/arXiv-PDF-green?style=flat&logo=arXiv&logoColor=green' alt='arXiv PDF'>
     </a>
-    <a href='https://ieeexplore.ieee.org/abstract/document/10269126'>
+    <a href='https://openreview.net/forum?id=NMMyGy1kKZ'>
       <img src='https://img.shields.io/badge/ACM MM 2024-purple' alt='arXiv PDF'>
     </a>
+
 <br />
 
 
@@ -38,7 +39,7 @@ Any kind discussions are welcomed!
 
 <h3 align="left">
 Links: 
-<a href="https://arxiv.org/abs/2404.13400">ArXiv</a>, 
+<a href="https://openreview.net/forum?id=NMMyGy1kKZ">ArXiv</a>, 
 <a href="">ACM MM 2024</a>
 </h3>
 
@@ -56,13 +57,12 @@ Links:
 If you find our work helpful for your research, please consider citing the following BibTeX entry.   
 
 ```bibtex
-@article{xiao2024hivg,
-      title={HiVG: Hierarchical Multimodal Fine-grained Modulation for Visual Grounding}, 
+@inproceedings{xiao2024hivg,
+      title={Hi{VG}: Hierarchical Multimodal Fine-grained Modulation for Visual Grounding},
       author={Linhui Xiao and Xiaoshan Yang and Fang Peng and Yaowei Wang and Changsheng Xu},
+      booktitle={ACM Multimedia 2024},
       year={2024},
-      eprint={2404.13400},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+      url={https://openreview.net/forum?id=NMMyGy1kKZ}
 }
 ```
 
