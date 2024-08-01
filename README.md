@@ -39,8 +39,8 @@ Any kind discussions are welcomed!
 
 <h3 align="left">
 Links: 
-<a href="https://openreview.net/forum?id=NMMyGy1kKZ">ArXiv</a>, 
-<a href="">ACM MM 2024</a>
+<a href="https://arxiv.org/pdf/2404.13400">ArXiv</a>, 
+<a href="https://openreview.net/forum?id=NMMyGy1kKZ">ACM MM 2024</a>
 </h3>
 
 **Please leave a <font color='orange'>STAR ⭐</font> if you like this project!**
