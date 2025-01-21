@@ -60,7 +60,7 @@ If you find our work helpful for your research, please consider citing the follo
 
 ```bibtex
 @inproceedings{xiao2024hivg,
-      title={Hi{VG}: Hierarchical Multimodal Fine-grained Modulation for Visual Grounding},
+      title={HiVG: Hierarchical Multimodal Fine-grained Modulation for Visual Grounding},
       author={Linhui Xiao and Xiaoshan Yang and Fang Peng and Yaowei Wang and Changsheng Xu},
       booktitle={ACM Multimedia 2024},
       year={2024},
