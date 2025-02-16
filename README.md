@@ -21,7 +21,9 @@
     <a href='https://openreview.net/forum?id=NMMyGy1kKZ'>
       <img src='https://img.shields.io/badge/ACM MM 2024-purple' alt='arXiv PDF'>
     </a>
-
+    <a href='docs/ACM_MM_2024_HiVG_poster.pdf'>
+      <img src='https://img.shields.io/badge/ACM MM Poster-lightblue' alt='arXiv PDF'>
+    </a>
 <br />
 
 
