@@ -84,8 +84,8 @@ If you find our work helpful for your research, please consider citing the follo
 
 
 ## TODO
-- [ ] Release all the checkpoints.
-- [ ] Release the full model code, training and inference code.
+- [x] Release all the checkpoints.
+- [x] Release the full model code, training and inference code.
 
 
 
