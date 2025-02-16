@@ -39,7 +39,7 @@ def xywh2xyxy(x):
          (x_c + 0.5 * w), (y_c + 0.5 * h)]
     return torch.stack(b, dim=-1)
 
-# xyxy to cxcywh
+# 注意，这是xyxy 转化为 cxcywh
 def xyxy2xywh(x):
     x0, y0, x1, y1 = x.unbind(-1)
     b = [(x0 + x1) / 2.0, (y0 + y1) / 2.0,
@@ -74,7 +74,6 @@ def generalized_box_iou(boxes1, boxes2):
     """
     # degenerate boxes gives inf / nan results
     # so do an early check
-
     assert (boxes1[:, 2:] >= boxes1[:, :2]).all()
     assert (boxes2[:, 2:] >= boxes2[:, :2]).all()
     iou, union = box_iou(boxes1, boxes2)
@@ -86,3 +85,5 @@ def generalized_box_iou(boxes1, boxes2):
     area = wh[:, :, 0] * wh[:, :, 1]
 
     return iou - (area - union) / area
+
+

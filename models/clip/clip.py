@@ -126,6 +126,7 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
     with open(model_path, 'rb') as opened_file:
         try:
             # loading JIT archive
+            # print("\n\n\nCLIP Loading jit")  # 走了此分支
             model = torch.jit.load(opened_file, map_location=device if jit else "cpu").eval()
             state_dict = None
         except RuntimeError:
@@ -133,9 +134,12 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
             if jit:
                 warnings.warn(f"File {model_path} is not a JIT archive. Loading as a state dict instead")
                 jit = False
+            # print("\n\n\nCLIP Loading state dict.")  # 未走此分支
             state_dict = torch.load(opened_file, map_location="cpu")
 
     if not jit:
+        # print("\n\n\nCLIP Loading not jit")  # 走了此分支
+        # 模型权重的加载都是从此处加载
         model = build_model(state_dict or model.state_dict()).to(device)
         if str(device) == "cpu":
             model.float()

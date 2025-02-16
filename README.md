@@ -47,7 +47,7 @@ Links:
 
 ## News
 
-- **All of the code and models will be released soon!**
+- :fire: **Update on 2025/01/30: The full code and models of HiVG have been released!**
 - :fire: **Update on 2024/12/28: We conducted a survey of Visual Grounding over the past decade, entitled "Towards Visual Grounding: A Survey" ([Paper](https://arxiv.org/pdf/2412.20206), [Project](https://github.com/linhuixiao/Awesome-Visual-Grounding)), Comments are welcome !!!**
 - :fire: **Update on 2024/10/10: Our new work **OneRef** has been accepted by the top conference NeurIPS 2024 ! ([paper](https://arxiv.org/abs/2410.08021), [github](https://github.com/linhuixiao/OneRef))**
 - :fire: **Update on 2024/07/16: Our grounding work HiVG ([Paper](https://openreview.net/pdf?id=NMMyGy1kKZ), [Code](https://github.com/linhuixiao/HiVG)) has been accepted by the top conference ACM MM 2024 !**
@@ -110,8 +110,11 @@ For more details, please refer to [our paper](https://arxiv.org/abs/2404.13400).
 ## Usage
 ### Dependencies
 - Python 3.9.10
-- PyTorch 1.9.0 + cu111 + cp39
+- Pytorch 2.2.2
+- transformers==4.30.0
 - Check [requirements.txt](requirements.txt) for other dependencies. 
+- It is recommended that the code be run under Anaconda env. If a library is missing while the code is running, 
+  you can simply install it using `pip install <library_name>` or `conda install <library_name>`.
 
 Our model is **easy to deploy** in a variety of environments and **has been successfully tested** on multiple pytorch versions.
 
@@ -148,50 +151,38 @@ Finally, the `$/path_to_image_data` folder will have the following structure:
 - ```$/path_to_image_data/image_data/referit/images/```: Image data for ReferItGame.
 
 ## Text-Box Anotations 
-The labels in the fully supervised scenario is consistent with previous works such as [TransVG](https://github.com/linhuixiao/TransVG).
+The labels are consistent with previous works such as [TransVG](https://github.com/linhuixiao/TransVG). **However, 
+this paper employs contrastive learning and shuffles the training examples; therefore, 
+you will need to re-download the data from us. Additionally, we also provide the `mixup` dataset for mixup grounding training, 
+which comprises by the five training sets (i.e., RefCOCO/+/g, ReferIt, Flickr30k). Note that the RefCOCOg-g (i.e., gref) 
+training set is excluded in the `mixup` because it exists test set data leakage.**
 
 
-### Fully supervised setting
+### text-box anotations download
 <table>
     <tr> <!-- line 3 -->
     <th style="text-align:center" > Datasets </th>
     <th style="text-align:center" > RefCOCO </th>
     <th style="text-align:center" > RefCOCO+ </th>
-    <th style="text-align:center" > RefCOCOg-g </th>
     <th style="text-align:center" > RefCOCOg-u </th>
     <th style="text-align:center" > ReferIt </th>
     <th style="text-align:center" > Flickr </th>
+    <th style="text-align:center" > Mixup pretraining </th>
     </tr>
     <tr> <!-- line 2 -->
         <th style="text-align:center" rowspan="1"> url, size </th> <!-- table head -->
-        <th style="text-align:center" colspan="6"> <a href="https://drive.google.com/file/d/1ituKSxWU5aXsGnXePd7twv7ImJoFiATc/view?usp=drive_link">All of six datasets</a>,  89.0MB </th>  <!-- table head -->
-    </tr>
-    <tr> <!-- line 3 -->
-    <th style="text-align:center" > with curriculum selecting </th>
-    <th style="text-align:center" > - </th>
-    <th style="text-align:center" > - </th>
-    <th style="text-align:center" > - </th>
-    <th style="text-align:center" > <a href="https://drive.google.com/file/d/1eSGr-sTqZ6z_Jy7APnJXNxegt2Q-pbqE/view?usp=drive_link">dataset</a> </th>
-    <th style="text-align:center" > - </th>
-    <th style="text-align:center" > - </th>
+        <th style="text-align:center" colspan="6"> <a href="https://drive.google.com/file/d/1oaKlHeEECr-KFSDcWUG3X0UNUhqjGugr/view?usp=drive_link">ref_data_shuffled</a>,  267.0MB </th>  <!-- table head -->
     </tr>
 </table>
 
-\* Since we observed a relatively clear performance increase on the RefCOCOg-u dataset in the fully supervised setting, 
-we provide data for this dataset after applying our SSA algorithm for curriculum selecting. Typically, by using this 
-filtered data, there is an approximate ~1.0 increase in performance on both val-u and test-u.
-
-Download the above annotations to a disk directory such as `$/path_to_split`; then will have the following similar directory structure:
+Download the above annotations to a disk directory such as `$/path_to_split/ref_data_shuffled`; then will have the following similar directory structure:
 
 ```angular2html
-|-- /full_sup_data
+|-- /ref_data_shuffled
     ├── flickr
     │   ├── flickr_test.pth
     │   ├── flickr_train.pth
     │   └── flickr_val.pth
-    ├── gref
-    │   ├── gref_train.pth
-    │   └── gref_val.pth
     ├── gref_umd
     │   ├── gref_umd_test.pth
     │   ├── gref_umd_train.pth
@@ -205,70 +196,195 @@ Download the above annotations to a disk directory such as `$/path_to_split`; th
     │   ├── unc_testB.pth
     │   ├── unc_train.pth
     │   └── unc_val.pth
-    └── unc+
-        ├── unc+_testA.pth
-        ├── unc+_testB.pth
-        ├── unc+_train.pth
-        └── unc+_val.pth
+    ├── unc+
+    │   ├── unc+_testA.pth
+    │   ├── unc+_testB.pth
+    │   ├── unc+_train.pth
+    │   └── unc+_val.pth
+    └── mixup
+        ├── mixup_test.pth
+        ├── mixup_train.pth
+        └── mixup_val.pth
 ```
 
 
 ## Pre-trained Checkpoints
 
-### Fully supervised setting
+The checkpoints include the Base model and Large mode under the single-dataset fine-tuning setting and dataset-mixed 
+grounding pretraining setting. 
+
+### Single-dataset fine-tuning checkpoints download
 
 <table>
     <tr> <!-- line 3 -->
     <th style="text-align:center" > Datasets </th>
     <th style="text-align:center" > RefCOCO </th>
     <th style="text-align:center" > RefCOCO+ </th>
-    <th style="text-align:center" > RefCOCOg-g </th>
     <th style="text-align:center" > RefCOCOg-u </th>
     <th style="text-align:center" > ReferIt </th>
     <th style="text-align:center" > Flickr </th>
     </tr>
-    <tr> <!-- line 3 -->
-    <th style="text-align:center" > separate </th>
-    <th style="text-align:center" > <a href="todo">model</a> </th>
-    <th style="text-align:center" > <a href="todo">model</a> </th>
-    <th style="text-align:center" > <a href="todo">model</a> </th>
-    <th style="text-align:center" > <a href="todo">model</a> </th>
-    <th style="text-align:center" > <a href="todo">model</a> </th>
-    <th style="text-align:center" > <a href="todo">model</a> </th>
+    <tr> <!-- line 2 -->
+        <th style="text-align:center" rowspan="1"> base model </th> <!-- table head -->
+        <th style="text-align:center" colspan="6"> <a href="https://drive.google.com/file/d/1vM_568M7DwnYmjEiJgXRnrDL5UT65CGJ/view?usp=drive_link"> finetuning_base (for all), ~4.0 GB </a>  </th>  <!-- table head -->
     </tr>
     <tr> <!-- line 2 -->
-        <th style="text-align:center" rowspan="1"> url, size </th> <!-- table head -->
-        <th style="text-align:center" colspan="6"> <a href="todo">All of six models (All have not ready)</a>  </th>  <!-- table head -->
+        <th style="text-align:center" rowspan="1"> base model </th> <!-- table head -->
+        <th style="text-align:center" colspan="6"> <a href="https://drive.google.com/file/d/1Yw_AVaYnw4amPsemFwKFurXgaKvJ11CB/view?usp=drive_link">finetuning_large (for all), ~8.0 GB </a>  </th>  <!-- table head -->
     </tr>
 </table>
 
-The checkpoints include the Base model and Large mode under the fine-tuning setting and dataset-mixed pretraining setting. 
+
+
+
+### Mixup grounding pre-training checkpoints download
+
+<table>
+    <tr> <!-- line 3 -->
+    <th style="text-align:center" > Datasets </th>
+    <th style="text-align:center" > Mixup </th>
+    </tr>
+    <tr> <!-- line 2 -->
+        <th style="text-align:center" rowspan="1"> base model </th> <!-- table head -->
+        <th style="text-align:center" colspan="1"> <a href="https://drive.google.com/file/d/1TzDLWjS-lXEr2M9uwaSBlU0MRmaRLSmN/view?usp=sharing">mixup_pretraining_base, ~1.0 GB </a>  </th>  <!-- table head -->
+    </tr>
+    <tr> <!-- line 3 -->
+    <th style="text-align:center" > Large model </th>
+    <th style="text-align:center" > <a href="https://drive.google.com/file/d/1H_tv9QcDK712Ie9flLgSCZmmj0HEcjb8/view?usp=drive_link">mixup_pretraining_large, ~2.0 GB</a> </th>
+    </tr>
+</table>
+
+
+After downloading all of these checkpoints, you can save them in the following directory, allowing you to train and test 
+the five datasets at once and just using a single script.
+
+```angular2html
+|-- /finetuning_checkpoints (base or large model)
+    ├── flickr
+    │   └── best_checkpoint.pth
+    ├── gref_umd
+    │   └── best_checkpoint.pth
+    ├── referit
+    │   └── best_checkpoint.pth
+    ├── unc
+    │   └── best_checkpoint.pth
+    └── unc+
+        └── best_checkpoint.pth
+
+|-- /mixup_grounding_pretraining (base or large model)
+    └── mixup
+        └── best_checkpoint.pth
+```
+
+
+
+### CLIP domain generalized checkpoints download
+
+Due to the domain bias of CLIP on the MSCOCO dataset, we follow previous work, such as TransVG++, VG-LAW, etc., to conduct 
+pre-training for the backbone network on the MSCOCO dataset while excluding RefCOCO/+/g related images. 
+For this pre-training, the [Detectron2](https://github.com/facebookresearch/detectron2) framework is used for detection and segmentation training under the vanilla LoRA paradigm. 
+If you want to training HiVG, please download the fine-tuned CLIP model using LoRA on MSCOCO dataset from the link below.
+
+
+<table>
+    <tr> <!-- line 3 -->
+    <th style="text-align:center" > Model </th>
+    <th style="text-align:center" > Debiased CLIP model using LoRA on the MSCOCO dataset </th>
+    </tr>
+    <tr> <!-- line 2 -->
+        <th style="text-align:center" rowspan="1"> base model (ViT-B/224) </th> <!-- table head -->
+        <th style="text-align:center" colspan="1"> <a href="https://drive.google.com/file/d/1pgso4gjHselrj4ExqJP3PYRbbX754aRq/view?usp=sharing">clip_b_ml_cascade_maskrcnn_model_224, 580 MB </a>  </th>  <!-- table head -->
+    </tr>
+    <tr> <!-- line 3 -->
+    <th style="text-align:center" > Large model (ViT-L/224) </th>
+    <th style="text-align:center" > <a href="https://drive.google.com/file/d/18T4g6P-duKifx5Ksw6gHmL0ttKW39Wa6/view?usp=sharing">clip_l_ml_cascade_maskrcnn_model_224, 1.6 GB</a> </th>
+    </tr>
+</table>
+
+Alternatively, you can also use the original CLIP Hugging Face model for training, for which we provide a download link.
+In this case, the performance may be degraded.
+
+<table>
+    <tr> <!-- line 3 -->
+    <th style="text-align:center" > Model </th>
+    <th style="text-align:center" > original CLIP Hugging Face model </th>
+    </tr>
+    <tr> <!-- line 2 -->
+        <th style="text-align:center" rowspan="1"> base model (ViT-B/224) </th> <!-- table head -->
+        <th style="text-align:center" colspan="1"> <a href="https://drive.google.com/file/d/1SgWSK6vOKgPpEaULlHGZBnxotZ241phG/view?usp=drive_link">clip-vit-base-patch16, 375 MB </a>  </th>  <!-- table head -->
+    </tr>
+    <tr> <!-- line 3 -->
+    <th style="text-align:center" > Large model (ViT-L/224) </th>
+    <th style="text-align:center" > <a href="https://huggingface.co/openai/clip-vit-large-patch14/tree/main">clip-vit-large-patch14, 1.6 GB</a> </th>
+    </tr>
+</table>
 
 
 ## Training and Evaluation
 
-You just only need to change ```$/path_to_split```, ``` $/path_to_image_data```, ``` $/path_to_output``` to your own file directory to execute the following command.
-The first time we run the command below, it will take some time for the repository to download the CLIP model.
 
-1. Training on RefCOCO with fully supervised setting. 
-    The only difference is an additional control flag: ```--sup_type full```
-    ```
-    CUDA_VISIBLE_DEVICES=3,4,5,6,7 python -m torch.distributed.launch --nproc_per_node=5 --master_port 28887 --use_env train_clip_vg.py --num_workers 32 --epochs 120 --batch_size 64 --lr 0.00025  --lr_scheduler cosine --aug_crop --aug_scale --aug_translate    --imsize 224 --max_query_len 77  --sup_type full --dataset unc      --data_root $/path_to_image_data --split_root $/path_to_split --output_dir $/path_to_output/output_v01/unc;
-    ```
-    Please refer to [train_and_eval_script/train_and_eval_full_sup.sh](train_and_eval_script/train_and_eval_full_sup.sh) for training commands on other datasets.
+### Evaluation
 
-2. Evaluation on RefCOCO. The instructions are the same for the fully supervised Settings.
-    ```
-    CUDA_VISIBLE_DEVICES=2,3,4,5,6,7 python -m torch.distributed.launch --nproc_per_node=6 --master_port 28888 --use_env eval.py --num_workers 2 --batch_size 128    --dataset unc      --imsize 224 --max_query_len 77 --data_root $/path_to_image_data --split_root $/path_to_split --eval_model $/path_to_output/output_v01/unc/best_checkpoint.pth      --eval_set val    --output_dir $/path_to_output/output_v01/unc;
-    ```
-    Please refer to [train_and_eval_script/train_and_eval_unsup.sh](train_and_eval_script/train_and_eval_unsup.sh) for evaluation commands on other splits or datasets.
-    
-3. We strongly recommend to use the following commands to training or testing with different datasets and splits, 
-    which will significant reduce the training workforce.
-    ```
-    bash train_and_eval_script/train_and_eval_full_sup.sh
+
+1. Download the images and text annotations for the five datasets, as well as the trained HiVG model and CLIP initialization model. 
+   You need to change the ```$/path_to_clip``` in [models/HiVG.py](models/HiVG.py) to your own CLIP model directory.
+
+2. The evaluation script are as follows:
+    ```angular2html
+    |-- /train_and_eval_script
+        ├── eval_single_dataset_finetuning_base.sh
+        ├── eval_single_dataset_finetuning_large.sh
+        ├── eval_mixup_grounding_pretraining_base.sh
+        └── eval_mixup_grounding_pretraining_large.sh
     ```
 
+3. You just need to change ```$/path_to_split```, ``` $/path_to_image_data```, ``` $/path_to_output``` to your own file directory to execute the above command.
+   We strongly recommend to use the following commands to training or testing with different datasets and splits, which will significant reduce the training workforce. Such as:
+    ```
+    bash train_and_eval_script/eval_single_dataset_finetuning_base.sh
+    ```
+
+4. For a specific dataset, the instruction is just like follows:
+    ```
+    CUDA_VISIBLE_DEVICES=1,2,3,4,5,6,7 python -m torch.distributed.launch --nproc_per_node=7 --master_port 28888 --use_env hivg_eval.py --num_workers 2 --batch_size 60  --dataset unc           --vl_hidden_dim 512 --imsize 224 --max_query_len 77 --normalize_before --enable_adaptive_weights --use_mask_loss  --save_hilora_clip --hi_lora_stage 3 --data_root /path_to_image_data --split_root /path_to_split/ref_data_shuffled --eval_model /patch_to_output/finetuning_base/unc/best_checkpoint.pth      --eval_set testA  --output_dir /patch_to_output/finetuning_base/unc;
+    ```
+    Please refer to the files in [train_and_eval_script](train_and_eval_script) for evaluation commands on other splits or datasets under different settings.
+
+
+### Training
+
+1. Download the images and text annotations for the five datasets, as well as the trained HiVG model and CLIP initialization model. 
+   You need to change the ```$/path_to_clip``` in [models/HiVG.py](models/HiVG.py) to your own CLIP model directory.
+
+2. The evaluation script are as follows:
+    ```angular2html
+    |-- /train_and_eval_script
+        ├── train_single_dataset_finetuning_base.sh
+        ├── train_single_dataset_finetuning_large.sh
+        ├── train_mixup_grounding_pretraining_base.sh
+        └── train_mixup_grounding_pretraining_large.sh
+    ```
+
+3. You just need to change ```$/path_to_split```, ``` $/path_to_image_data```, ``` $/path_to_output``` to your own file directory to execute the above command.
+   We strongly recommend to use the following commands to training or testing with different datasets and splits, which will significant reduce the training workforce. Such as:
+    ```
+    bash train_and_eval_script/train_single_dataset_finetuning_base.sh
+    ```
+
+4. For a specific dataset, if you want to enable HiLoRA, your training may involve 4 stages: the warmup stage, 
+   HiLoRA stage 1, HiLoRA stage 2, and HiLoRA stage 3.
+
+   Note that the essence of the HiLoRA mechanism is a process of decomposing parameter learning, and its effectiveness
+   is influenced by the learning rate and the number of epochs. Therefore, HiLoRA requires different learning rates and numbers of epochs at various stages for specific model 
+   configurations. If you do not need to enable HiLoRA, simply leave `args.hi_lora_stage=0` as the default. 
+
+5. The Large version of the model is somewhat difficult to train and empirically requires two stages of warmup. 
+   In the first stage, `arg.warmup` needs to be enabled, and the visual adapt layer must be forced to be empty `[]` 
+   to train the cross-modal fusion encoder, which is equivalent to freezing the CLIP model. 
+   Only 5-10 epochs are needed for this phase. In the second stage, `arg.warmup` is turned off, and normal training 
+   is performed; at this time, linguistic information can fine-tune the visual features through the cross-modal bridge.
+
+   Please refer to the files in [train_and_eval_script](train_and_eval_script) for training commands on other splits or datasets under different settings.
 
 
 ## Results

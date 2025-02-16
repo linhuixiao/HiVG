@@ -25,9 +25,26 @@ sys.path.append('.')
 from PIL import Image
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 from utils.word_utils import Corpus
+from pycocotools import mask as coco_mask
 
-# from CLIP-VG.models.clip import *
-import clip
+
+def convert_coco_poly_mask(segmentations, height, width):
+    masks = []
+    for polygons in segmentations:
+        rles = coco_mask.frPyObjects(polygons, height, width)
+        mask = coco_mask.decode(rles)
+        if len(mask.shape) < 3:
+            mask = mask[..., None]
+        mask = torch.as_tensor(mask, dtype=torch.uint8)
+        mask = mask.any(dim=2)
+        masks.append(mask)
+    if masks:
+        masks = torch.stack(masks, dim=0)
+    else:
+        # If the mask is empty, it indicates that there is no target. Directly return a mask with a value of 0.
+        masks = torch.zeros((0, height, width), dtype=torch.uint8)
+    return masks
+
 
 def read_examples(input_line, unique_id):
     """Read a list of `InputExample`s from an input file."""
@@ -51,7 +68,8 @@ def read_examples(input_line, unique_id):
     return examples
 
 
-## Bert text encoding
+# Bert text encoding
+
 class InputExample(object):
     def __init__(self, unique_id, text_a, text_b):
         self.unique_id = unique_id
@@ -137,6 +155,7 @@ class DatasetNotFoundError(Exception):
 
 class TransVGDataset(data.Dataset):
     SUPPORTED_DATASETS = {
+        # TODO: 数据集不一样，全部多了 train_pseudo
         'referit': {'splits': ('train', 'val', 'trainval', 'test', 'train_pseudo')},
         'unc': {
             'splits': ('train', 'val', 'trainval', 'testA', 'testB', 'train_pseudo'),
@@ -155,11 +174,15 @@ class TransVGDataset(data.Dataset):
             'params': {'dataset': 'refcocog', 'split_by': 'umd'}
         },
         'flickr': {
-            'splits': ('train', 'val', 'test', 'train_pseudo')}
+            'splits': ('train', 'val', 'test', 'train_pseudo')
+        },
+        'mixup': {
+            'splits': ('train', 'val', 'test', 'train_pseudo')
+        }
     }
 
-    """ the core part of the dataset processing """
-    def __init__(self, data_root, split_root='data', dataset='referit',
+    """ 数据集核心处理部分 """
+    def __init__(self, args, data_root, split_root='data', dataset='referit',
                  transform=None, return_idx=False, testmode=False,
                  split='train', max_query_len=128, prompt_template=None, lstm=False,
                  bert_model='bert-base-uncased'):
@@ -173,8 +196,9 @@ class TransVGDataset(data.Dataset):
         self.transform = transform
         self.testmode = testmode
         self.split = split
-        # self.tokenizer = BertTokenizer.from_pretrained(bert_model, do_lower_case=True)
+        self.tokenizer = BertTokenizer.from_pretrained(bert_model, do_lower_case=True)
         self.return_idx = return_idx
+        self.use_seg_mask = args.use_seg_mask
 
         assert self.transform is not None
 
@@ -189,14 +213,15 @@ class TransVGDataset(data.Dataset):
             self.split_dir = osp.join(self.dataset_root, 'splits')
         elif self.dataset == 'flickr':
             self.dataset_root = osp.join(self.data_root, 'Flickr30k')
-            # TODO: it should be note that this needs to change flickr30k_images to flickr30k-images
+            # TODO: It is flickr30k-images, is not 这里把 flickr30k_images
             self.im_dir = osp.join(self.dataset_root, 'flickr30k-images')
-        else:  ## refcoco, etc.
+        else:  # refcoco, etc.
             self.dataset_root = osp.join(self.data_root, 'other')
             self.im_dir = osp.join(self.dataset_root, 'images', 'mscoco', 'images', 'train2014')
             self.split_dir = osp.join(self.dataset_root, 'splits')
 
         if not self.exists_dataset():
+            # self.process_dataset()
             print('The dataset {} is not found!'.format(osp.join(self.split_root, self.dataset)))
             print('Please download index cache to data folder: \n \
                 https://drive.google.com/open?id=1cZI562MABLtAzM6YU4WmKPFFguuVr0lZ')
@@ -223,32 +248,79 @@ class TransVGDataset(data.Dataset):
             imgset_path = osp.join(dataset_path, imgset_file)
             self.images += torch.load(imgset_path)
 
-        if self.prompt_template:
-            self.images = self.prompt(self.images)
+        # if self.prompt_template:
+        #     self.images = self.prompt(self.images)
 
     def exists_dataset(self):
         return osp.exists(osp.join(self.split_root, self.dataset))
 
-    # TODO: 这句是关键
     def pull_item(self, idx):
-        if self.dataset == 'flickr':
+        if self.dataset == 'flickr':  # flickr
             img_file, bbox, phrase = self.images[idx]
+            img_size = None
+            obj_mask = None
+            image_size = []
+            bbox_xywh = bbox.copy()
         else:
-            img_file, _, bbox, phrase, attri = self.images[idx]
+            img_file, img_size, bbox, phrase, obj_mask = self.images[idx]  # The most original data
+            bbox_xywh = bbox.copy()
+            if isinstance(img_size, dict):
+                image_size = [img_size["height"], img_size["width"]]
+            # else:
+            #     img_size = None
+
         ## box format: to x1y1x2y2
-        bbox_ori = bbox
+        bbox_ori = bbox.copy()
+        #  For the refcoco dataset, uniformly convert the bbox from xywh (horizontal x, vertical y) to x1y1x2y2
+        #  format, and then convert it back to xywh at normalizationandpad in Transform.
         if not (self.dataset == 'referit' or self.dataset == 'flickr'):
             bbox = np.array(bbox, dtype=int)
             bbox[2], bbox[3] = bbox[0] + bbox[2], bbox[1] + bbox[3]
         else:
             bbox = np.array(bbox, dtype=int)
+            bbox_xywh[2], bbox_xywh[3] = bbox_xywh[2] - bbox_xywh[0], bbox_xywh[3] - bbox_xywh[1]
 
-        img_path = osp.join(self.im_dir, img_file)
+        #  Loading grounding pre-training data for mixed datasets
+        if self.dataset == "mixup":
+            if img_file.split("_")[0] == "COCO":
+                dataset = "coco"
+                im_dir = osp.join(self.data_root, 'other', 'images', 'mscoco', 'images', 'train2014')
+            else:
+                if img_size == "flickr":
+                    dataset = "flickr"
+                    im_dir = osp.join(self.data_root, 'Flickr30k', 'flickr30k-images')
+                elif img_size == "referit":
+                    dataset = "referit"
+                    im_dir = osp.join(self.data_root, 'referit', 'images')
+                else:
+                    print("img_file：", img_file, 'img_size: ', img_size, "bbox: ", bbox, "phrases: ", phrase)
+                    raise ValueError('Can not find image dir')
+        else:
+            dataset = self.dataset
+            im_dir = self.im_dir
+
+        img_path = osp.join(im_dir, img_file)
         img = Image.open(img_path).convert("RGB")
+
+        if dataset == 'referit' or dataset == 'flickr':
+            image_size = [img.height, img.width]
 
         bbox = torch.tensor(bbox)
         bbox = bbox.float()
-        return img_file, img, phrase, bbox, bbox_ori
+
+        if dataset in ["unc", "unc+", "gref", "gref_umd", "coco"]:
+            h, w = image_size[0], image_size[1]
+            if self.use_seg_mask:
+                bool_obj_mask = convert_coco_poly_mask([obj_mask], h, w)  # torch.Size([1, 480, 640])
+            else:  # use box mask supervised
+                obj_mask = [bbox_xywh]  # Here, the bbox is required to be in the xywh format.
+                bool_obj_mask = convert_coco_poly_mask(np.array([obj_mask]), h, w)  # torch.Size([1, 480, 640])
+        else:
+            h, w = image_size[0], image_size[1]
+            obj_mask = [list(map(float, bbox_xywh))]
+            bool_obj_mask = convert_coco_poly_mask(np.array([obj_mask]), h, w)  # torch.Size([1, 480, 640])
+
+        return img_file, img, phrase, bbox, bbox_ori, bool_obj_mask
 
     def tokenize_phrase(self, phrase):
         return self.corpus.tokenize(phrase, self.query_len)
@@ -256,7 +328,6 @@ class TransVGDataset(data.Dataset):
     def untokenize_word_vector(self, words):
         return self.corpus.dictionary[words]
 
-    # TODO: 新增
     def prompt(self, sample_list):
         n = len(sample_list)
         new_sample_list = []
@@ -265,11 +336,6 @@ class TransVGDataset(data.Dataset):
             if self.dataset == 'flickr':
                 tmp_sample = (sample_list[i][0], sample_list[i][1], self.prompt_template.replace('{pseudo_query}', sample_list[i][2]))
             else:
-                # print("\nsample_list:\n", sample_list[i])
-                #  ('COCO_train2014_000000000839.jpg', '482127.pth', [303.58, 69.03, 293.29, 425.79],
-                #  'guy flopping around on the right', [('r1', ['guy']), ('r2', ['none']), ('r3', ['none']),
-                #  ('r4', ['none']), ('r5', ['none']), ('r6', ['none']), ('r7', ['none']),
-                #  ('r8', ['right', 'flopping', 'around'])])
                 tmp_sample = (sample_list[i][0], sample_list[i][1], sample_list[i][2],
                               self.prompt_template.replace('{pseudo_query}', sample_list[i][3]), sample_list[i][4])
             new_sample_list.append(tmp_sample)
@@ -279,31 +345,31 @@ class TransVGDataset(data.Dataset):
         return len(self.images)
 
     def __getitem__(self, idx):
-        img_file, img, phrase, bbox, bbox_ori = self.pull_item(idx)
+        img_file, img, phrase, bbox, bbox_ori, obj_mask = self.pull_item(idx)
         phrase = phrase.lower()
-        input_dict = {'img': img, 'box': bbox, 'text': phrase}
+        input_dict = {'img': img, 'box': bbox, 'text': phrase, 'obj_mask': obj_mask}
         input_dict = self.transform(input_dict)
 
         img = input_dict['img']
         img_mask = input_dict['mask']
         bbox = input_dict['box']
         phrase = input_dict['text']
+        obj_mask = input_dict['obj_mask']
 
-        # if self.lstm:
-        #     phrase = self.tokenize_phrase(phrase)
-        #     word_id = phrase
-        #     word_mask = np.array(word_id > 0, dtype=int)
-        # else:
-        #     ## encode phrase to bert input
-        #     examples = read_examples(phrase, idx)
-        #     features = convert_examples_to_features(
-        #         examples=examples, seq_length=self.query_len, tokenizer=self.tokenizer)
-        #     word_id = features[0].input_ids
-        #     word_mask = features[0].input_mask
+        if self.lstm:
+            phrase = self.tokenize_phrase(phrase)
+            word_id = phrase
+            word_mask = np.array(word_id > 0, dtype=int)
+        else:
+            examples = read_examples(phrase, idx)
+            features = convert_examples_to_features(
+                examples=examples, seq_length=self.query_len, tokenizer=self.tokenizer)
+            word_id = features[0].input_ids
+            word_mask = features[0].input_mask
 
-        text_token = clip.tokenize(phrase)  # 1*77
-        text = text_token.int()[0].tolist()
-        text_mask = (text_token.clone() > 0).int()[0].tolist()
+        text = []
+        text_mask = []
+
         """ # old code
         if self.testmode:
             return img, np.array(word_id, dtype=int), np.array(word_mask, dtype=int), \
@@ -314,11 +380,43 @@ class TransVGDataset(data.Dataset):
             return img, np.array(img_mask), np.array(word_id, dtype=int), np.array(word_mask, dtype=int), np.array(bbox, dtype=np.float32)
         """
 
-        if self.testmode:  # default is False
+        if self.testmode:
             return img, np.array(text, dtype=int), np.array(text_mask, dtype=int), \
                    np.array(bbox, dtype=np.float32), np.array(ratio, dtype=np.float32), \
                    np.array(dw, dtype=np.float32), np.array(dh, dtype=np.float32), self.images[idx][0]
+        else:  # Avoid 7 return values
+            return img, np.array(img_mask), np.array(text, dtype=int), np.array(text_mask, dtype=int), \
+                   np.array(bbox, dtype=np.float32), img_file, phrase, bbox_ori, np.array(obj_mask, dtype=int)
+
+    def getitem_for_origin_transvg(self, idx):
+        img_file, img, phrase, bbox, bbox_ori = self.pull_item(idx)
+
+        phrase = phrase.lower()
+        input_dict = {'img': img, 'box': bbox, 'text': phrase}
+        input_dict = self.transform(input_dict)
+        img = input_dict['img']
+        bbox = input_dict['box']
+        phrase = input_dict['text']
+        img_mask = input_dict['mask']
+
+        if self.lstm:
+            phrase = self.tokenize_phrase(phrase)
+            word_id = phrase
+            word_mask = np.array(word_id > 0, dtype=int)
         else:
-            return img, np.array(img_mask), np.array(text, dtype=int), np.array(text_mask, dtype=int), np.array(bbox, dtype=np.float32), img_file, phrase, bbox_ori
+            # encode phrase to bert input
+            examples = read_examples(phrase, idx)
+            features = convert_examples_to_features(
+                examples=examples, seq_length=self.query_len, tokenizer=self.tokenizer)
+            word_id = features[0].input_ids
+            word_mask = features[0].input_mask
+
+        if self.testmode:
+            return img, np.array(word_id, dtype=int), np.array(word_mask, dtype=int), \
+                   np.array(bbox, dtype=np.float32), np.array(ratio, dtype=np.float32), \
+                   np.array(dw, dtype=np.float32), np.array(dh, dtype=np.float32), self.images[idx][0]
+        else:
+            return img, np.array(img_mask), np.array(word_id, dtype=int), np.array(word_mask, dtype=int), \
+                   np.array(bbox, dtype=np.float32)
 
 

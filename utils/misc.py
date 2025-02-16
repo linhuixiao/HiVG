@@ -296,16 +296,21 @@ def collate_fn(raw_batch):
     raw_batch = list(zip(*raw_batch))
 
     img = torch.stack(raw_batch[0])
-    img_mask = torch.tensor(np.array(raw_batch[1]))
+    img_mask = torch.tensor(np.array(raw_batch[1]))  # img_mask = torch.tensor(raw_batch[1])
+    # The NestedTensor concatenation of the data is completed here
     img_data = NestedTensor(img, img_mask)
-    word_id = torch.tensor(np.array(raw_batch[2]))
-    word_mask = torch.from_numpy(np.array(raw_batch[3]))
+    word_id = torch.tensor(np.array(raw_batch[2]))  # word_id = torch.tensor(raw_batch[2])
+    word_mask = torch.from_numpy(np.array(raw_batch[3]))  # word_mask = torch.tensor(raw_batch[3])
     text_data = NestedTensor(word_id, word_mask)
-    bbox = torch.tensor(np.array(raw_batch[4]))
+    bbox = torch.tensor(np.array(raw_batch[4]))  # bbox = torch.tensor(raw_batch[4])
+    obj_mask = torch.tensor(np.array(raw_batch[8]))  # seg mask
+    phrase = raw_batch[6]  # original phrase
+
     if len(raw_batch) == 7:
         batch = [img_data, text_data, bbox, raw_batch[5], raw_batch[6]]
     else:
-        batch = [img_data, text_data, bbox]
+        # batch = [img_data, text_data, bbox, obj_mask]
+        batch = [img_data, phrase, bbox, obj_mask]
     return tuple(batch)
 
 
@@ -313,12 +318,12 @@ def collate_fn_filtering(raw_batch):
     raw_batch = list(zip(*raw_batch))
 
     img = torch.stack(raw_batch[0])
-    img_mask = torch.tensor(np.array(raw_batch[1]))
+    img_mask = torch.tensor(np.array(raw_batch[1]))  # img_mask = torch.tensor(raw_batch[1])
     img_data = NestedTensor(img, img_mask)
-    word_id = torch.tensor(np.array(raw_batch[2]))
-    word_mask = torch.from_numpy(np.array(raw_batch[3]))
+    word_id = torch.tensor(np.array(raw_batch[2]))  # word_id = torch.tensor(raw_batch[2])
+    word_mask = torch.from_numpy(np.array(raw_batch[3]))  # word_mask = torch.tensor(raw_batch[3])
     text_data = NestedTensor(word_id, word_mask)
-    bbox = torch.tensor(np.array(raw_batch[4]))
+    bbox = torch.tensor(np.array(raw_batch[4]))  # bbox = torch.tensor(raw_batch[4])
     img_file = raw_batch[5]
     phrase = raw_batch[6]
     bbox_ori = raw_batch[7]
@@ -523,3 +528,24 @@ def interpolate(input, size=None, scale_factor=None, mode="nearest", align_corne
         return _new_empty_tensor(input, output_shape)
     else:
         return torchvision.ops.misc.interpolate(input, size, scale_factor, mode, align_corners)
+
+
+def mdetr_interpolate(input, size=None, scale_factor=None, mode="nearest", align_corners=None):
+    # type: (Tensor, Optional[List[int]], Optional[float], str, Optional[bool]) -> Tensor
+    """
+    Equivalent to nn.functional.interpolate, but with support for empty channel sizes.
+    """
+    if input.numel() > 0:
+        return torch.nn.functional.interpolate(input, size, scale_factor, mode, align_corners)
+
+    assert input.shape[0] != 0 or input.shape[1] != 0, "At least one of the two first dimensions must be non zero"
+
+    if input.shape[1] == 0:
+        # Pytorch doesn't support null dimension on the channel dimension, so we transpose to fake a null batch dim
+        return torch.nn.functional.interpolate(input.transpose(0, 1), size, scale_factor, mode, align_corners).transpose(0, 1)
+
+    # empty batch dimension is now supported in pytorch
+    return torch.nn.functional.interpolate(input, size, scale_factor, mode, align_corners)
+
+
+
