@@ -134,7 +134,7 @@ Our model is **easy to deploy** in a variety of environments and **has been succ
    Or you can also follow the data preparation of TransVG, which can be found in [GETTING_STARTED.md](https://github.com/djiajunustc/TransVG/blob/main/docs/GETTING_STARTED.md).
 
 Only the image data in these datasets is used, and these image data is easily find in similar repositories of visual grounding work, such as [TransVG](https://github.com/linhuixiao/TransVG) etc. 
-Finally, the `$/path_to_image_data` folder will have the following structure:
+Finally, the `$/path_to_image_data` folder will have the following structure:  
 
 ```angular2html
 |-- image_data
@@ -157,7 +157,8 @@ The labels are consistent with previous works such as [TransVG](https://github.c
 this paper employs contrastive learning and shuffles the training examples; therefore, 
 you will need to re-download the data from us. Additionally, we also provide the `mixup` dataset for mixup grounding training, 
 which comprises by the five training sets (i.e., RefCOCO/+/g, ReferIt, Flickr30k). Note that the RefCOCOg-g (i.e., gref) 
-training set is excluded in the `mixup` because it exists test set data leakage.**
+training set is excluded in the `mixup` because it exists test set data leakage. The val and test split in `mixup` are 
+copied from the RefCOCOg dataset.**
 
 
 ### text-box anotations download
@@ -373,14 +374,14 @@ In this case, the performance may be degraded.
     bash train_and_eval_script/train_single_dataset_finetuning_base.sh
     ```
 
-4. For a specific dataset, if you want to enable HiLoRA, your training may involve 4 stages: the warmup stage, 
-   HiLoRA stage 1, HiLoRA stage 2, and HiLoRA stage 3.
+4. **For a specific dataset, if you want to enable HiLoRA, your training may involve 4 stages: the warmup stage, 
+   HiLoRA stage 1, HiLoRA stage 2, and HiLoRA stage 3.**
 
-   Note that the essence of the HiLoRA mechanism is a process of decomposing parameter learning, and its effectiveness
+   **Note that the essence of the HiLoRA mechanism is a process of decomposing parameter learning, and its effectiveness
    is influenced by the learning rate and the number of epochs. Therefore, HiLoRA requires different learning rates and numbers of epochs at various stages for specific model 
-   configurations. If you do not need to enable HiLoRA, simply leave `args.hi_lora_stage=0` as the default. 
+   configurations. If you do not need to enable HiLoRA, simply leave `args.hi_lora_stage=0` as the default.** 
 
-5. The Large version of the model is somewhat difficult to train and empirically requires two stages of warmup. 
+5. **The Large version of the model is somewhat difficult to train and empirically requires one or two stages of warmup.** 
    In the first stage, `arg.warmup` needs to be enabled, and the visual adapt layer must be forced to be empty `[]` 
    to train the cross-modal fusion encoder, which is equivalent to freezing the CLIP model. 
    Only 5-10 epochs are needed for this phase. In the second stage, `arg.warmup` is turned off, and normal training 
