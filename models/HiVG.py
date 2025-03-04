@@ -381,7 +381,7 @@ class CLIPEncoderLayer_with_Crossmodal_Bridge(nn.Module):
         self.embed_dim = clip_encoder_layer.embed_dim
         self.self_attn = clip_encoder_layer.self_attn
 
-        # TODO: Multi-layer Adaptive Cross-modal Bridge
+        """ Multi-layer Adaptive Cross-modal Bridge """
         self.enable_adaptive_weights = args.enable_adaptive_weights
         if i in adapt_layer:
             self.cross_norm = nn.LayerNorm(self.embed_dim, eps=config.layer_norm_eps)  # eps=1e-05
@@ -427,7 +427,7 @@ class CLIPEncoderLayer_with_Crossmodal_Bridge(nn.Module):
         )
         hidden_states = residual + hidden_states
 
-        # TODO：Multi-layer Adaptive Cross-modal Bridge
+        """ Multi-layer Adaptive Cross-modal Bridge """
         if layer in adapt_layer:
             residual = hidden_states
             hidden_states = self.cross_norm(hidden_states)
