@@ -330,7 +330,7 @@ In this case, the performance may be degraded.
 
 
 1. Download the images and text annotations for the five datasets, as well as the trained HiVG model and CLIP initialization model. 
-   You need to change the ```$/path_to_clip``` in [models/HiVG.py](models/HiVG.py) to your own CLIP model directory.
+   You need to change the ```$/path_to_clip``` in [models/HiVG.py](models/HiVG.py) to your ```original CLIP Hugging Face model``` CLIP model directory.
 
 2. The evaluation script are as follows:
     ```angular2html
@@ -357,7 +357,7 @@ In this case, the performance may be degraded.
 ### Training
 
 1. Download the images and text annotations for the five datasets, as well as the trained HiVG model and CLIP initialization model. 
-   You need to change the ```$/path_to_clip``` in [models/HiVG.py](models/HiVG.py) to your own CLIP model directory.
+   You need to change the ```$/path_to_clip``` in [models/HiVG.py](models/HiVG.py) to your ```original CLIP Hugging Face model```  CLIP model directory.
 
 2. The evaluation script are as follows:
     ```angular2html
@@ -374,8 +374,12 @@ In this case, the performance may be degraded.
     bash train_and_eval_script/train_single_dataset_finetuning_base.sh
     ```
 
-4. **For a specific dataset, if you want to enable HiLoRA, your training may involve 4 stages: the warmup stage, 
+4. **Notably, for a specific dataset, if you want to enable HiLoRA, your training may involve 4 stages: the warmup stage, 
    HiLoRA stage 1, HiLoRA stage 2, and HiLoRA stage 3.**
+
+   **In the warm-up phase, MACA is not turned on, only the fusion Transformer encoder is trained, and HiLoRA training is 
+   not turned on for the CLIP model. Note that during the loading process of multiple rounds of HiLoRA training, 
+   CLIP needs to be loaded separately. This will cause some parameters to mismatch, which is normal.**
 
    **Note that the essence of the HiLoRA mechanism is a process of decomposing parameter learning, and its effectiveness
    is influenced by the learning rate and the number of epochs. Therefore, HiLoRA requires different learning rates and numbers of epochs at various stages for specific model 
