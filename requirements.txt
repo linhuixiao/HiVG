@@ -16,4 +16,4 @@ datasets==2.0.0
 huggingface-hub==0.15.1
 timm==0.4.12
 transformers==4.30.0
-
+peft==0.3.0

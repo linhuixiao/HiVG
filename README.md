@@ -114,6 +114,7 @@ For more details, please refer to [our paper](https://arxiv.org/abs/2404.13400).
 - Python 3.9.10
 - Pytorch 2.2.2
 - transformers==4.30.0
+- peft==0.3.0
 - Check [requirements.txt](requirements.txt) for other dependencies. 
 - It is recommended that the code be run under Anaconda env. If a library is missing while the code is running, 
   you can simply install it using `pip install <library_name>` or `conda install <library_name>`.
@@ -232,7 +233,7 @@ grounding pretraining setting.
         <th style="text-align:center" colspan="6"> <a href="https://drive.google.com/file/d/1vM_568M7DwnYmjEiJgXRnrDL5UT65CGJ/view?usp=drive_link"> finetuning_base (for all), ~4.0 GB </a>  </th>  <!-- table head -->
     </tr>
     <tr> <!-- line 2 -->
-        <th style="text-align:center" rowspan="1"> base model </th> <!-- table head -->
+        <th style="text-align:center" rowspan="1"> Large model </th> <!-- table head -->
         <th style="text-align:center" colspan="6"> <a href="https://drive.google.com/file/d/1Yw_AVaYnw4amPsemFwKFurXgaKvJ11CB/view?usp=drive_link">finetuning_large (for all), ~8.0 GB </a>  </th>  <!-- table head -->
     </tr>
 </table>
@@ -353,6 +354,7 @@ In this case, the performance may be degraded.
     ```
     Please refer to the files in [train_and_eval_script](train_and_eval_script) for evaluation commands on other splits or datasets under different settings.
 
+5. If you need to save the CLIP model for the current stage, you need to use flags ```--save_hilora_clip```
 
 ### Training
 
