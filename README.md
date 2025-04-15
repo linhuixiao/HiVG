@@ -80,7 +80,7 @@ If you find our work helpful for your research, please consider citing the follo
 
 
 ## Highlight
--  **A concise hierarchical multimodal modulation framework**, which utilizes the hierarchical structure to gradually adapt CLIP to grounding. HiVG achieves fine-grained interaction between multi-level visual representations and language semantics, and significantly alleviates the task gap between CLIP and grounding.
+- **A concise hierarchical multimodal modulation framework**, which utilizes the hierarchical structure to gradually adapt CLIP to grounding. HiVG achieves fine-grained interaction between multi-level visual representations and language semantics, and significantly alleviates the task gap between CLIP and grounding.
 - **The first to propose the hierarchical multimodal low-rank adaptation paradigm.** Hi LoRA is a basic and concise hierarchical adaptation paradigm, which is task-agnostic.
 - **Extensive experiments are conducted to verify the effectiveness of HiVG approaches.** Results show that our method achieves promising results, surpassing the SOTA methods under the same setting by a significant margin. Besides, our model offers significant computing efficiency advantages.
 
@@ -120,6 +120,11 @@ For more details, please refer to [our paper](https://arxiv.org/abs/2404.13400).
   you can simply install it using `pip install <library_name>` or `conda install <library_name>`.
 
 Our model is **easy to deploy** in a variety of environments and **has been successfully tested** on multiple pytorch versions.
+
+❗❗❗️
+**(Updated April 15, 2025) Please note that some researchers tested HiVG models in the latest peft library and found 
+that the CLIP model weights did not match, which reduced the accuracy. To solve this problem, you only need to ensure 
+the peft version is 0.3.0.**
 
 
 ### Image Data Preparation
